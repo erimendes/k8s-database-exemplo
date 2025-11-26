@@ -1,0 +1,16 @@
+# k8s-database-exemplo/database/mysql-pvc.yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  # Define o modo de acesso: 'ReadWriteOnce' permite que um nó leia/escreva.
+  accessModes:
+    - ReadWriteOnce
+  # Define o tipo de armazenamento, o padrão do cluster Kubernetes será usado.
+  storageClassName: standard
+  resources:
+    requests:
+      # Solicita 5 Gigabytes de armazenamento para o banco.
+      storage: 5Gi

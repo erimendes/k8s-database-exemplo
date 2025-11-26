@@ -1,3 +1,4 @@
+# k8s-database-exemplo/backend/php-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,10 +17,28 @@ spec:
     spec:
       containers:
       - name: php
-        image: denilsonbonatti/php:1.0
+        image: erimendes/php:8.2-latest # Use uma tag mais descritiva
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+        
+        # **CORREÇÃO DE SEGURANÇA:** Usar Secrets para credenciais de DB
+        env:
+        - name: DB_HOST
+          # O nome do service do DB é 'mysql-service', conforme corrigido anteriormente.
+          value: "mysql-service" 
+        - name: DB_NAME
+          value: "meubanco"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials # Nome do Secret a ser criado
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: password
 
 ---
 
@@ -28,10 +47,11 @@ kind: Service
 metadata:
   name: php-service
 spec:
+  # NodePort é usado para expor a aplicação fora do cluster em ambientes de teste/Minikube.
   type: NodePort
   ports:
     - targetPort: 80
       port: 80
-      nodePort: 30005
+      nodePort: 30005 # Porta alta, mas lembre-se que 30000-32767 são permitidas
   selector:
     app: php

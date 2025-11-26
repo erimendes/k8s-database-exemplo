@@ -1,17 +1,31 @@
-FROM php:7.4-apache
+# k8s-database-exemplo/backend/dockerfile
+# Usar uma versão mais atual e suportada do PHP (por exemplo, 8.2)
+FROM php:8.2-apache
 
+# **Melhor Prática:** Instalação simplificada de extensões PHP e dependências
+# Instalar dependências necessárias para as extensões.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libzip-dev \
+        libpng-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+        libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar extensões PHP essenciais.
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install pdo pdo_mysql mysqli intl
+
+# **Melhor Prática:** Definir o diretório de trabalho.
 WORKDIR /var/www/html
+
+# Copiar os arquivos
 COPY index.php /var/www/html/
 COPY conexao.php /var/www/html/
+COPY gravar_mensagem.php /var/www/html/
+# Não é necessário expor a porta 80, pois é a padrão do Apache no contêiner.
 
-RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libpng-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install mysqli
-
-
-EXPOSE 80
+# O servidor Apache já é o ponto de entrada (ENTRYPOINT) padrão.

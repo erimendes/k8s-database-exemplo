@@ -1,11 +1,17 @@
-FROM mysql:5.7
+# k8s-database-exemplo/database/dockerfile
+# Usa a versão 8.0 do MySQL, mais moderna e segura.
+FROM mysql:8.0
 
-WORKDIR /var/lib/mysql/
+# NÃO MUDE O WORKDIR — MySQL precisa do padrão
+# ENV no MySQL são suficientes
 
 ENV MYSQL_ROOT_PASSWORD=Senha123
-
 ENV MYSQL_DATABASE=meubanco
+ENV MYSQL_USER=appuser
+ENV MYSQL_PASSWORD=Senha123
 
-ADD sql.sql /docker-entrypoint-initdb.d
+# Scripts de inicialização
+COPY sql.sql /docker-entrypoint-initdb.d/
 
 EXPOSE 3306
+# Fim do Dockerfile

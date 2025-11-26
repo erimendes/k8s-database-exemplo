@@ -1,8 +1,13 @@
+# k8s-database-exemplo/database/db-deployment.yml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: mysql-deployment
+  labels:
+    app: mysql
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: mysql
@@ -13,20 +18,60 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: denilsonbonatti/meubanco:1.0
+        image: erimendes/meubanco:1.0
         imagePullPolicy: Always
+
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Senha123"
+        - name: MYSQL_DATABASE
+          value: "meubanco"
+        - name: MYSQL_USER
+          value: "appuser"
+        - name: MYSQL_PASSWORD
+          value: "Senha123"
+
         ports:
         - containerPort: 3306
 
----
+        # ---- PROBES CORRETAS ----
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - mysqladmin ping -uappuser -p"$MYSQL_PASSWORD"
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
 
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - mysqladmin ping -uappuser -p"$MYSQL_PASSWORD"
+          initialDelaySeconds: 60
+          periodSeconds: 20
+          timeoutSeconds: 5
+
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-connection
+  name: mysql-service
 spec:
+  type: ClusterIP
   ports:
   - port: 3306
+    targetPort: 3306
   selector:
     app: mysql
-  clusterIP: None
