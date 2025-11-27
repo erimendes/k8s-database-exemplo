@@ -23,9 +23,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 WORKDIR /var/www/html
 
 # Copiar os arquivos
-COPY index.php /var/www/html/
-COPY conexao.php /var/www/html/
-COPY gravar_mensagem.php /var/www/html/
-# Não é necessário expor a porta 80, pois é a padrão do Apache no contêiner.
+# Copia backend
+COPY ./index.php /var/www/html/index.php
+COPY ./conexao.php /var/www/html/conexao.php
 
-# O servidor Apache já é o ponto de entrada (ENTRYPOINT) padrão.
+# Copia frontend
+COPY ./frontend /var/www/html/
+
+EXPOSE 80

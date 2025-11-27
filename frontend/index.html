@@ -2,34 +2,26 @@
 <html>
 <head>
 <meta charset="UTF-8"/>
-<title>Aplicação Exemplo</title>
-<link rel="stylesheet" type="text/css" href="css.css" media="screen" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="js.js"> </script>
+<title>Aplicação Moderna</title>
+<link rel="stylesheet" href="css.css" />
 </head>
+
 <body>
 
+<div class="container">
+    <form id="contact" onsubmit="return false;">
+        <h3>App de Exemplo</h3>
+        <h4>Deixe sua mensagem!</h4>
 
-<div class="container">  
-  <form id="contact" method="post">
-    <h3>App de exemplo</h3>
-    <h4>Deixe a sua mensagem!</h4>
-    <fieldset>
-      <input placeholder="Seu Nome" type="text" tabindex="1" id="nome" required autofocus>
-    </fieldset>
-    <fieldset>
-      <textarea placeholder="Digite a sua mensagem aqui......" id="mensagem" tabindex="5" required></textarea>
-    </fieldset>
-    <fieldset>
-      <button type="button" name="btn_salvar"  id="btn_salvar">Enviar</button>
-    </fieldset>
-  </form>
+        <input id="nome" placeholder="Seu Nome" required>
+        <textarea id="mensagem" placeholder="Mensagem..." required></textarea>
 
-  <div id="resposta"></div>
- 
-  <script src="js.js"> </script>
-  
+        <button id="btn_salvar">Enviar</button>
+    </form>
+
+    <div id="resposta"></div>
 </div>
 
+<script src="js.js"></script>
 </body>
 </html>
