@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>Chat Simples Kubernetes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <link rel="stylesheet" href="css.css">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Chat K8s</a>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <h3>Enviar Mensagem</h3>
+      <input id="nome" class="form-control" placeholder="Seu nome"/>
+      <textarea id="mensagem" class="form-control mt-2" placeholder="Mensagem"></textarea>
+      <button id="btn_salvar" class="btn btn-primary w-100 mt-3">Enviar</button>
+      <div id="resposta" class="mt-2 fw-bold"></div>
+    </div>
+
+    <div class="col-md-8">
+      <h2>Mensagens Recentes</h2>
+      <ul id="lista" class="list-group">
+        <li class="list-group-item disabled" aria-disabled="true">Carregando mensagens...</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="js.js"></script>
+</body>
+</html>

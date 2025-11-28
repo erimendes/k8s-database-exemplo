@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  server.js: |
+    const express = require('express');
+    const mysql = require('mysql2');
+    const http = require('http');
+    const socketio = require('socket.io');
+
+    const app = express();
+    const server = http.createServer(app);
+    const io = socketio(server, { cors: { origin: "*" } });
+
+    app.use(express.json());
+
+    const db = mysql.createConnection({
+      host: 'database-service',
+      user: 'root',
+      password: 'root',
+      database: 'mensagensdb'
+    });
+
+    db.query(`CREATE TABLE IF NOT EXISTS mensagens (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      usuario VARCHAR(255),
+      mensagem TEXT,
+      criado TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    db.connect(err => {
+      if (err) throw err;
+      console.log('Conectado ao MySQL!');
+    });
+
+    app.post('/mensagem', (req, res) => {
+      const { usuario, mensagem } = req.body;
+      if(!usuario || usuario.length < 3 || !mensagem || mensagem.length < 3)
+        return res.status(400).json({sucesso:false, erro:"Dados inválidos"});
+
+      db.query('INSERT INTO mensagens (usuario, mensagem) VALUES (?, ?)',
+        [usuario, mensagem],
+        (err, result) => {
+          if(err) return res.json({sucesso:false, erro:err.sqlMessage});
+
+          db.query('SELECT * FROM mensagens WHERE id = ?',
+            [result.insertId],
+            (err2, rows) => {
+              if(err2 || rows.length === 0)
+                return res.json({sucesso:false, erro:"Erro ao consultar registro"});
+
+              io.emit("nova_mensagem", rows[0]);
+              res.json({sucesso:true, dados:rows[0]});
+            }
+          );
+        }
+      );
+    });
+
+    app.get('/mensagens', (req, res) => {
+      db.query('SELECT * FROM mensagens ORDER BY criado DESC', (err, results) => {
+        if(err) return res.status(500).json({erro:err.sqlMessage});
+        res.json(results);
+      });
+    });
+
+    io.on("connection", () => console.log("WebSocket conectado"));
+
+    server.listen(3000, () => console.log("Backend rodando na porta 3000"));

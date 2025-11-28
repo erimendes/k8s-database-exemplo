@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: node:18
+          workingDir: /usr/src/app
+          # CORREÇÃO: Copia o server.js do /tmp-code, instala libs e executa
+          command: ["sh", "-c", "cp /tmp-code/server.js /usr/src/app/server.js && npm install express mysql2 socket.io && node server.js"]
+          volumeMounts:
+            # Monta ConfigMap em um diretório temporário
+            - name: backend-code
+              mountPath: /tmp-code 
+          ports:
+            - containerPort: 3000
+      volumes:
+        - name: backend-code
+          configMap:
+            name: backend-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 3000
+      targetPort: 3000
